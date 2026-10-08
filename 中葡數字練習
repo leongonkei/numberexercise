@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>葡語數字練習</title>
+<style>
+  :root{
+    --bg:#f6f4f0; --card:#ffffff; --ink:#22201d; --muted:#8a847c;
+    --accent:#2f6f5e; --accent-soft:#e7f1ed; --gold:#e8b931; --line:#e6e1da;
+    --voice:#8a5cd6; --voice-soft:#f0eafb; --unit:#c2410c;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink); min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+    display:flex; justify-content:center;
+  }
+  .screen{width:100%; max-width:560px; padding:24px 18px 56px;}
+  .hidden{display:none !important;}
+
+  /* 單位詞高亮（橙色） */
+  .unit{color:var(--unit); font-weight:800;}
+
+  /* ---------- HOME ---------- */
+  h1{font-size:1.65rem; margin:10px 0 4px; letter-spacing:.02em;}
+  .sub{color:var(--muted); margin:0 0 24px; font-size:.88rem;}
+  .sec-title{
+    font-size:.75rem; font-weight:700; color:var(--muted);
+    letter-spacing:.14em; margin:0 0 10px; display:flex; align-items:center; gap:7px;
+  }
+  .sec-title.voice{color:var(--voice);}
+  .sec-block{margin-bottom:26px;}
+  .levels{display:grid; gap:9px;}
+  .level-btn{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:16px 18px; font-family:inherit; font-size:1rem; color:inherit;
+    text-align:left; cursor:pointer; transition:.15s;
+  }
+  .level-btn:active{transform:scale(.98); background:var(--accent-soft);}
+  .level-btn.voice:active{background:var(--voice-soft);}
+  .lv-title{font-weight:700; flex-shrink:0;}
+  .lv-unit{
+    font-size:.92rem; font-weight:700; color:var(--accent);
+    letter-spacing:.02em; text-align:right; line-height:1.35;
+  }
+  .level-btn.voice .lv-unit{color:var(--voice);}
+
+  .review h2{font-size:1.05rem; margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+  .badge{
+    background:var(--accent-soft); color:var(--accent); font-size:.72rem;
+    padding:2px 8px; border-radius:99px; font-weight:700;
+  }
+  .empty{color:var(--muted); font-size:.82rem; line-height:1.7; margin:0;}
+
+  /* ---------- 複習卡片 ---------- */
+  .review-card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:15px 17px; margin-bottom:10px;
+  }
+  .rc-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .rc-tag{font-size:.68rem; color:var(--muted); letter-spacing:.05em;}
+  .rc-tag.voice{color:var(--voice);}
+  .rc-del{
+    border:none; background:none; color:#c9c3bb; font-size:1rem; cursor:pointer;
+    padding:2px 4px; line-height:1; font-family:inherit;
+  }
+  .rc-del:active{color:#e05c5c;}
+
+  .rc-num{
+    font-size:1.55rem; font-weight:800; letter-spacing:.02em;
+    font-variant-numeric:tabular-nums; line-height:1.2; margin-bottom:9px;
+  }
+  .rc-pt{
+    font-size:1rem; font-weight:700; color:var(--accent);
+    line-height:1.55; word-break:break-word;
+    display:flex; align-items:flex-start; gap:8px;
+  }
+  .rc-pt .txt{flex:1;}
+  .rc-play{
+    flex-shrink:0; width:30px; height:30px; border-radius:50%;
+    border:1px solid #e0d4f7; background:var(--voice-soft); color:var(--voice);
+    font-size:.8rem; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; transition:.15s;
+    margin-top:1px;
+  }
+  .rc-play:active{transform:scale(.9); background:#e2d6f8;}
+  .rc-cn{
+    font-size:.88rem; font-weight:600; color:var(--muted);
+    margin-top:7px; line-height:1.55; word-break:break-word;
+  }
+
+  /* ---------- PRACTICE ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .icon-btn{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+    background:var(--card); font-size:1.15rem; color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-family:inherit; transition:.15s; flex-shrink:0;
+  }
+  .icon-btn:active{transform:scale(.92);}
+  .star-btn.on{color:var(--gold); border-color:var(--gold); background:#fffaeb;}
+  #levelLabel{font-size:.82rem; color:var(--muted); letter-spacing:.06em; text-align:center;}
+
+  .qcard{
+    background:var(--card); border:1px solid var(--line); border-radius:20px;
+    min-height:210px; display:flex; align-items:center; justify-content:center;
+    padding:28px 20px; text-align:center;
+  }
+  .big-num{
+    font-size:clamp(2rem,11vw,3.4rem); font-weight:800; letter-spacing:.02em;
+    font-variant-numeric:tabular-nums; line-height:1.15;
+  }
+  .big-text{
+    font-size:clamp(1.15rem,5.6vw,1.75rem); font-weight:700; line-height:1.6;
+    color:var(--accent); word-break:break-word;
+  }
+  .big-text.cn{color:var(--ink);}
+  .play-btn{
+    width:110px; height:110px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--voice-soft); color:var(--voice); font-size:2.6rem;
+    display:flex; align-items:center; justify-content:center; transition:.15s;
+    font-family:inherit;
+  }
+  .play-btn:active{transform:scale(.93); background:#e2d6f8;}
+  .play-note{font-size:.75rem; color:var(--muted); margin-top:16px; letter-spacing:.05em;}
+
+  .answer-box{
+    margin-top:14px; background:var(--accent-soft); border-radius:16px;
+    padding:20px 16px; text-align:center; animation:fade .25s ease;
+  }
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .answer-box .lbl{font-size:.72rem; color:var(--muted); letter-spacing:.1em; margin-bottom:10px;}
+  .answer-box .val{
+    font-size:clamp(1.35rem,7vw,2.1rem); font-weight:800; color:var(--accent);
+    word-break:break-word; line-height:1.45;
+  }
+  .answer-box .val.num{font-variant-numeric:tabular-nums;}
+  .answer-box .val.cn{color:var(--ink);}
+  .answer-box .val-cn{
+    font-size:clamp(0.95rem,4.5vw,1.25rem); font-weight:600;
+    color:var(--accent); opacity:.85; margin-top:10px;
+    word-break:break-word; line-height:1.5;
+  }
+
+  .actions{margin-top:16px;}
+  .primary{
+    width:100%; padding:17px; border-radius:15px; border:none; cursor:pointer;
+    background:var(--accent); color:#fff; font-size:1rem; font-weight:700;
+    font-family:inherit; letter-spacing:.05em; transition:.15s;
+  }
+  .primary:active{transform:scale(.98); opacity:.9;}
+  .primary.ghost{background:var(--card); color:var(--accent); border:1px solid var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<div id="home" class="screen">
+  <h1>葡語數字練習</h1>
+  <p class="sub">選擇練習模式與難度</p>
+
+  <div class="sec-block">
+    <div class="sec-title">📖 文字練習區</div>
+    <div class="levels">
+      <button class="level-btn" data-mode="text" data-level="1">
+        <span class="lv-title">難度一</span>
+        <span class="lv-unit">até centena</span>
+      </button>
+      <button class="level-btn" data-mode="text" data-level="2">
+        <span class="lv-title">難度二</span>
+        <span class="lv-unit">mil – cem mil</span>
+      </button>
+      <button class="level-btn" data-mode="text" data-level="3">
+        <span class="lv-title">難度三</span>
+        <span class="lv-unit">milhão – cem milhões</span>
+      </button>
+      <button class="level-btn" data-mode="text" data-level="4">
+        <span class="lv-title">難度四</span>
+        <span class="lv-unit">mil milhões – cem mil milhões</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sec-block">
+    <div class="sec-title voice">🔊 語音練習區（歐葡）</div>
+    <div class="levels">
+      <button class="level-btn voice" data-mode="speech" data-level="1">
+        <span class="lv-title">🔊 難度一</span>
+        <span class="lv-unit">até centena</span>
+      </button>
+      <button class="level-btn voice" data-mode="speech" data-level="2">
+        <span class="lv-title">🔊 難度二</span>
+        <span class="lv-unit">mil – cem mil</span>
+      </button>
+      <button class="level-btn voice" data-mode="speech" data-level="3">
+        <span class="lv-title">🔊 難度三</span>
+        <span class="lv-unit">milhão – cem milhões</span>
+      </button>
+      <button class="level-btn voice" data-mode="speech" data-level="4">
+        <span class="lv-title">🔊 難度四</span>
+        <span class="lv-unit">mil milhões – cem mil milhões</span>
+      </button>
+    </div>
+  </div>
+
+  <section class="review">
+    <h2>⭐ 複習區 <span id="reviewBadge" class="badge hidden">0</span></h2>
+    <div id="reviewList"></div>
+    <p id="reviewEmpty" class="empty">還沒有加入複習的題目。<br>練習時按右上角的星星即可收藏。</p>
+  </section>
+</div>
+
+<!-- ============ PRACTICE ============ -->
+<div id="practice" class="screen hidden">
+  <div class="topbar">
+    <button id="backBtn" class="icon-btn">←</button>
+    <span id="levelLabel"></span>
+    <button id="starBtn" class="icon-btn star-btn">☆</button>
+  </div>
+
+  <div class="qcard">
+    <div id="promptArea" style="width:100%"></div>
+  </div>
+
+  <div id="answerBox" class="answer-box hidden">
+    <div class="lbl">答案</div>
+    <div class="val" id="answerVal"></div>
+    <div class="val-cn hidden" id="answerCn"></div>
+  </div>
+
+  <div class="actions">
+    <button id="revealBtn" class="primary">顯示答案</button>
+    <button id="nextBtn" class="primary ghost hidden">下一題 →</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   一、數字 → 歐葡文字
+   ========================================================= */
+const U     = ['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove'];
+const TEENS = ['dez','onze','doze','treze','catorze','quinze','dezasseis','dezassete','dezoito','dezanove'];
+const TENS  = {2:'vinte',3:'trinta',4:'quarenta',5:'cinquenta',6:'sessenta',7:'setenta',8:'oitenta',9:'noventa'};
+const HUND  = ['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+
+function below1000(n){
+  if(n===0) return '';
+  if(n===100) return 'cem';
+  const h = Math.floor(n/100), r = n%100, p = [];
+  if(h>0) p.push(HUND[h]);
+  if(r>0){
+    if(r<10) p.push(U[r]);
+    else if(r<20) p.push(TEENS[r-10]);
+    else{
+      const t = Math.floor(r/10), u = r%10;
+      p.push(u>0 ? TENS[t]+' e '+U[u] : TENS[t]);
+    }
+  }
+  return p.join(' e ');
+}
+
+function belowMillion(n){
+  if(n===0) return '';
+  const k = Math.floor(n/1000), r = n%1000;
+  let s = '';
+  if(k>0) s = (k===1) ? 'mil' : below1000(k)+' mil';
+  if(r>0){
+    const rs = below1000(r);
+    if(!s) return rs;
+    s += (r<100 || r%100===0) ? ' e '+rs : ' '+rs;
+  }
+  return s;
+}
+
+function toWords(n){
+  if(n===0) return 'zero';
+  if(n<1000000) return belowMillion(n);
+  const m = Math.floor(n/1000000), r = n%1000000;
+  let s = (m===1) ? 'um milhão' : belowMillion(m)+' milhões';
+  if(r>0){
+    const rs = belowMillion(r);
+    const ck = r<1000 ? r : Math.floor(r/1000);
+    s += (ck<100 || ck%100===0) ? ' e '+rs : ' '+rs;
+  }
+  return s;
+}
+
+/* =========================================================
+   二、數字 → 中文全稱（純文字）
+   ========================================================= */
+const CN_D = ['零','一','二','三','四','五','六','七','八','九'];
+const CN_U = ['','十','百','千'];
+
+function cnBelow10000(n){
+  if(n===0) return '';
+  const s = String(n);
+  let out = '', zero = false;
+  for(let i=0;i<s.length;i++){
+    const d = +s[i], unit = CN_U[s.length-1-i];
+    if(d===0){ zero = true; continue; }
+    if(zero && out) out += '零';
+    zero = false;
+    if(!(d===1 && unit==='十' && out==='')) out += CN_D[d];
+    out += unit;
+  }
+  return out;
+}
+
+function toChinese(n){
+  if(n===0) return '零';
+  const yi = Math.floor(n/100000000);
+  const wan = Math.floor((n%100000000)/10000);
+  const ge = n%10000;
+  let out = '';
+  if(yi) out += cnBelow10000(yi)+'亿';
+  if(wan){
+    if(out && wan<1000) out += '零';
+    out += cnBelow10000(wan)+'万';
+  }
+  if(ge){
+    if(out && ge<1000) out += '零';
+    out += cnBelow10000(ge);
+  }
+  return out;
+}
+
+/* =========================================================
+   三、中文全稱 → HTML（只有每級最高單位高亮）
+   ========================================================= */
+function cnBelow10000HTML(n, hiQian){
+  if(n===0) return '';
+  const s = String(n);
+  let out = '', zero = false;
+  for(let i=0;i<s.length;i++){
+    const d = +s[i], unit = CN_U[s.length-1-i];
+    if(d===0){ zero = true; continue; }
+    if(zero && out) out += '零';
+    zero = false;
+    if(!(d===1 && unit==='十' && out==='')) out += CN_D[d];
+    if(unit==='千' && hiQian){
+      out += '<span class="unit">千</span>';
+    }else{
+      out += unit;
+    }
+  }
+  return out;
+}
+
+function cnToHTML(n){
+  if(n===0) return '零';
+  const yi = Math.floor(n/100000000);
+  const wan = Math.floor((n%100000000)/10000);
+  const ge = n%10000;
+  let out = '';
+  if(yi){
+    out += cnBelow10000HTML(yi, false) + '<span class="unit">亿</span>';
+  }
+  if(wan){
+    if(out && wan < 1000) out += '零';
+    out += cnBelow10000HTML(wan, false) + '<span class="unit">万</span>';
+  }
+  if(ge){
+    if(out && ge < 1000) out += '零';
+    out += cnBelow10000HTML(ge, ge >= 1000);
+  }
+  return out;
+}
+
+/* =========================================================
+   四、歐葡文字 → HTML（高亮所有 mil / milhões）
+   ========================================================= */
+function ptToHTML(text){
+  return text.replace(/\b(milhões|milhão|mil)\b/gi, '<span class="unit">$1</span>');
+}
+
+/* =========================================================
+   五、工具
+   ========================================================= */
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function fmtInt(n){
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+
+function levelName(lv){
+  return ['','難度一','難度二','難度三','難度四'][lv];
+}
+
+function modeName(m){
+  return m === 'speech' ? '語音練習（歐葡）' : '文字練習';
+}
+
+/* =========================================================
+   六、狀態
+   ========================================================= */
+const STORE_KEY = 'pt-number-trainer-review-v8';
+
+const state = {
+  mode: 'text',
+  level: 1,
+  current: null,
+  revealed: false,
+  review: []
+};
+
+function loadReview(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    state.review = raw ? JSON.parse(raw) : [];
+  }catch(e){ state.review = []; }
+}
+function saveReview(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state.review)); }catch(e){}
+}
+
+/* =========================================================
+   七、出題
+   ========================================================= */
+const LEVEL_CFG = {
+  1:{min:10,          max:999,           decimal:true },
+  2:{min:1000,        max:999999,        decimal:false},
+  3:{min:1000000,     max:999999999,     decimal:false},
+  4:{min:1000000000,  max:999999999999,  decimal:false}
+};
+
+function makeQuestion(level, mode){
+  const cfg = LEVEL_CFG[level];
+  const intPart = randomInt(cfg.min, cfg.max);
+  let decStr = null;
+
+  if(cfg.decimal && Math.random() < 0.55){
+    const len = Math.random() < 0.5 ? 1 : 2;
+    decStr = len === 1
+      ? String(randomInt(1,9))
+      : String(randomInt(10,99));
+  }
+
+  const numberStr = decStr ? fmtInt(intPart)+','+decStr : fmtInt(intPart);
+
+  /* 歐葡文字 */
+  let ptText = toWords(intPart);
+  if(decStr) ptText += ' vírgula ' + toWords(+decStr);
+  const ptHTML = ptToHTML(ptText);
+
+  /* 中文全稱 */
+  let cnText = toChinese(intPart);
+  let cnHTML = cnToHTML(intPart);
+  if(decStr){
+    const decCN = '點' + decStr.split('').map(d=>CN_D[+d]).join('');
+    cnText += decCN;
+    cnHTML += decCN;
+  }
+
+  let kind;
+  if(mode === 'speech'){
+    kind = 'speech';
+  }else{
+    const r = Math.random();
+    if(r < 0.34) kind = 'num2text';      /* 數字題 */
+    else if(r < 0.67) kind = 'pt2num';   /* 歐葡題 */
+    else kind = 'cn2num';                /* 中文題 */
+  }
+
+  const q = {
+    id: 'q' + Date.now() + Math.floor(Math.random()*100000),
+    mode, level, kind, numberStr,
+    ptText, ptHTML, cnText, cnHTML,
+    speechLang: null
+  };
+  if(kind === 'speech'){
+    q.speechLang = 'pt';
+  }
+  return q;
+}
+
+/* =========================================================
+   八、語音
+   ========================================================= */
+let voicesCache = [];
+function refreshVoices(){
+  if('speechSynthesis' in window){
+    voicesCache = window.speechSynthesis.getVoices() || [];
+  }
+}
+if('speechSynthesis' in window){
+  refreshVoices();
+  window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
+
+function pickPtVoice(){
+  if(!voicesCache.length) refreshVoices();
+  const lower = v => (v.lang||'').toLowerCase().replace('_','-');
+  return voicesCache.find(v=>lower(v).startsWith('pt-pt'))
+      || voicesCache.find(v=>lower(v).startsWith('pt'))
+      || null;
+}
+
+function speak(q){
+  if(!('speechSynthesis' in window)){
+    alert('此瀏覽器不支援語音播放');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(q.ptText);
+  utt.lang = 'pt-PT';
+  utt.rate = 0.88;
+  const v = pickPtVoice();
+  if(v) utt.voice = v;
+  window.speechSynthesis.speak(utt);
+}
+
+/* =========================================================
+   九、畫面切換
+   ========================================================= */
+const homeEl     = document.getElementById('home');
+const practiceEl = document.getElementById('practice');
+
+function showHome(){
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  practiceEl.classList.add('hidden');
+  homeEl.classList.remove('hidden');
+  renderReview();
+}
+
+function showPractice(mode, level){
+  state.mode  = mode;
+  state.level = level;
+  state.current = makeQuestion(level, mode);
+  state.revealed = false;
+  homeEl.classList.add('hidden');
+  practiceEl.classList.remove('hidden');
+  document.getElementById('levelLabel').textContent =
+    modeName(mode) + ' · ' + levelName(level);
+  renderQuestion();
+}
+
+/* ---------- 練習畫面渲染 ---------- */
+const promptArea = document.getElementById('promptArea');
+const answerBox  = document.getElementById('answerBox');
+const answerVal  = document.getElementById('answerVal');
+const answerCn   = document.getElementById('answerCn');
+const revealBtn  = document.getElementById('revealBtn');
+const nextBtn    = document.getElementById('nextBtn');
+const starBtn    = document.getElementById('starBtn');
+
+function renderQuestion(){
+  const q = state.current;
+  promptArea.innerHTML = '';
+  answerBox.classList.add('hidden');
+  answerVal.textContent = '';
+  answerVal.innerHTML = '';
+  answerVal.classList.remove('num','cn');
+  answerCn.innerHTML = '';
+  answerCn.classList.add('hidden');
+  revealBtn.classList.remove('hidden');
+  nextBtn.classList.add('hidden');
+  state.revealed = false;
+  updateStar();
+
+  if(q.kind === 'num2text'){
+    /* 題目：數字 */
+    const d = document.createElement('div');
+    d.className = 'big-num';
+    d.textContent = q.numberStr;
+    promptArea.appendChild(d);
+  }
+  else if(q.kind === 'pt2num'){
+    /* 題目：歐葡文字（單位高亮） */
+    const d = document.createElement('div');
+    d.className = 'big-text';
+    d.innerHTML = q.ptHTML;
+    promptArea.appendChild(d);
+  }
+  else if(q.kind === 'cn2num'){
+    /* 題目：中文文字（單位高亮） */
+    const d = document.createElement('div');
+    d.className = 'big-text cn';
+    d.innerHTML = q.cnHTML;
+    promptArea.appendChild(d);
+  }
+  else{
+    /* 語音題：只有播放按鈕 */
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.flexDirection = 'column';
+    wrap.style.alignItems = 'center';
+
+    const b = document.createElement('button');
+    b.className = 'play-btn';
+    b.textContent = '🔊';
+    b.setAttribute('aria-label','播放語音');
+    b.addEventListener('click', ev=>{
+      ev.stopPropagation();
+      speak(q);
+    });
+
+    const note = document.createElement('div');
+    note.className = 'play-note';
+    note.textContent = '點擊重播';
+
+    wrap.appendChild(b);
+    wrap.appendChild(note);
+    promptArea.appendChild(wrap);
+
+    setTimeout(()=>{
+      if(state.current === q) speak(q);
+    }, 300);
+  }
+}
+
+function revealAnswer(){
+  if(state.revealed) return;
+  state.revealed = true;
+  const q = state.current;
+
+  /* 重置樣式 */
+  answerVal.classList.remove('num','cn');
+  answerCn.classList.add('hidden');
+
+  if(q.kind === 'num2text'){
+    /* 數字題 → 答案：中文 + 歐葡 */
+    answerVal.innerHTML = q.cnHTML;
+    answerVal.classList.add('cn');
+    answerCn.innerHTML = q.ptHTML;
+    answerCn.classList.remove('hidden');
+  }
+  else if(q.kind === 'pt2num'){
+    /* 歐葡題 → 答案：數字 + 中文 */
+    answerVal.textContent = q.numberStr;
+    answerVal.classList.add('num');
+    answerCn.innerHTML = q.cnHTML;
+    answerCn.classList.remove('hidden');
+  }
+  else{
+    /* 中文題 → 答案：數字 + 歐葡 */
+    answerVal.textContent = q.numberStr;
+    answerVal.classList.add('num');
+    answerCn.innerHTML = q.ptHTML;
+    answerCn.classList.remove('hidden');
+  }
+
+  answerBox.classList.remove('hidden');
+  revealBtn.classList.add('hidden');
+  nextBtn.classList.remove('hidden');
+}
+
+function updateStar(){
+  const q = state.current;
+  if(!q) return;
+  const has = state.review.some(r => r.id === q.id);
+  starBtn.textContent = has ? '★' : '☆';
+  starBtn.classList.toggle('on', has);
+}
+
+/* =========================================================
+   十、複習區（統一顯示：數字 + 歐葡 + 中文）
+   ========================================================= */
+function renderReview(){
+  const list  = document.getElementById('reviewList');
+  const empty = document.getElementById('reviewEmpty');
+  const badge = document.getElementById('reviewBadge');
+  list.innerHTML = '';
+
+  const n = state.review.length;
+  if(n === 0){
+    empty.style.display = 'block';
+    badge.classList.add('hidden');
+    return;
+  }
+  empty.style.display = 'none';
+  badge.textContent = n;
+  badge.classList.remove('hidden');
+
+  [...state.review].reverse().forEach(item=>{
+    const card = document.createElement('div');
+    card.className = 'review-card';
+
+    const head = document.createElement('div');
+    head.className = 'rc-head';
+
+    const tag = document.createElement('span');
+    const isVoice = (item.kind === 'speech');
+    tag.className = 'rc-tag' + (isVoice ? ' voice' : '');
+    tag.textContent = (isVoice ? '🔊 歐葡語音 · ' : '📖 文字 · ') + levelName(item.level);
+
+    const del = document.createElement('button');
+    del.className = 'rc-del';
+    del.textContent = '✕';
+    del.addEventListener('click', ev=>{
+      ev.stopPropagation();
+      state.review = state.review.filter(r => r.id !== item.id);
+      saveReview();
+      renderReview();
+    });
+
+    head.appendChild(tag);
+    head.appendChild(del);
+
+    /* 數字 */
+    const numRow = document.createElement('div');
+    numRow.className = 'rc-num';
+    numRow.textContent = item.numberStr;
+
+    /* 歐葡文字（單位高亮）+ 播放按鈕 */
+    const ptRow = document.createElement('div');
+    ptRow.className = 'rc-pt';
+
+    const ptTxt = document.createElement('span');
+    ptTxt.className = 'txt';
+    ptTxt.innerHTML = item.ptHTML;
+
+    const playBtn = document.createElement('button');
+    playBtn.className = 'rc-play';
+    playBtn.textContent = '🔊';
+    playBtn.setAttribute('aria-label','播放歐葡語音');
+    playBtn.addEventListener('click', ev=>{
+      ev.stopPropagation();
+      speak(item);
+    });
+
+    ptRow.appendChild(ptTxt);
+    ptRow.appendChild(playBtn);
+
+    /* 中文全稱（單位高亮） */
+    const cnRow = document.createElement('div');
+    cnRow.className = 'rc-cn';
+    cnRow.innerHTML = item.cnHTML;
+
+    card.appendChild(head);
+    card.appendChild(numRow);
+    card.appendChild(ptRow);
+    card.appendChild(cnRow);
+
+    list.appendChild(card);
+  });
+}
+
+/* =========================================================
+   十一、事件綁定
+   ========================================================= */
+document.querySelectorAll('.level-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> showPractice(btn.dataset.mode, +btn.dataset.level));
+});
+
+document.getElementById('backBtn').addEventListener('click', showHome);
+
+revealBtn.addEventListener('click', revealAnswer);
+
+nextBtn.addEventListener('click', ()=>{
+  state.current = makeQuestion(state.level, state.mode);
+  renderQuestion();
+});
+
+starBtn.addEventListener('click', ()=>{
+  const q = state.current;
+  if(!q) return;
+  const idx = state.review.findIndex(r => r.id === q.id);
+  if(idx >= 0) state.review.splice(idx,1);
+  else state.review.push(q);
+  saveReview();
+  updateStar();
+});
+
+document.querySelector('.qcard').addEventListener('click', ()=>{
+  if(!state.revealed) revealAnswer();
+});
+
+document.addEventListener('keydown', e=>{
+  if(practiceEl.classList.contains('hidden')) return;
+  if(e.key === ' ' || e.key === 'Enter'){
+    e.preventDefault();
+    if(!state.revealed) revealAnswer();
+    else nextBtn.click();
+  }
+});
+
+/* =========================================================
+   十二、啟動
+   ========================================================= */
+loadReview();
+renderReview();
+</script>
+</body>
+</html>
